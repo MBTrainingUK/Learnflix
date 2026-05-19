@@ -12,29 +12,14 @@
       background: #000;
       overflow: hidden;
     }
-    .player-container {
+    iframe#vimeoPlayer {
       position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-    }
-    .video-wrapper {
-      position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
-      background: #000;
-      overflow: hidden;
-    }
-    .vimeo-embed,
-    .vimeo-embed iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
       border: 0;
+      z-index: 1;
     }
     .close-btn {
       position: fixed;
@@ -55,18 +40,12 @@
 </head>
 <body>
 
-<div class="player-container">
-  <div class="video-wrapper">
-    <div class="vimeo-embed">
-      <iframe src="https://player.vimeo.com/video/1193644471?badge=0&autopause=0&player_id=0&app_id=58479"
-        frameborder="0"
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        title="episode 1">
-      </iframe>
-    </div>
-  </div>
-</div>
+<iframe id="vimeoPlayer"
+  src="https://player.vimeo.com/video/1193644471?badge=0&autopause=0&player_id=0&app_id=58479"
+  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+  referrerpolicy="strict-origin-when-cross-origin"
+  title="episode 1">
+</iframe>
 
 <button class="close-btn" onclick="window.close();">✕ Close</button>
 
