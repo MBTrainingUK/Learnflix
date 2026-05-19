@@ -35,54 +35,19 @@
       overflow: hidden;
       box-shadow: 0 8px 30px rgba(0,0,0,.8);
     }
-    video {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    #playButton {
+    .vimeo-embed {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(229, 9, 20, 0.9);
-      cursor: pointer;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      transition: background 0.3s, transform 0.3s;
-    }
-    #playButton:hover {
-      background: rgba(229, 9, 20, 1);
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-    #playButton.hidden {
-      display: none;
-    }
-    video::-webkit-media-controls-panel {
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-    .placeholder-video {
+      inset: 0;
       width: 100%;
       height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1f1f1f 0%, #2d2d2d 100%);
-      font-size: 3rem;
-      flex-direction: column;
-      gap: 20px;
     }
-    .placeholder-video span {
-      font-size: 1rem;
-      color: #aaa;
-      margin-top: 10px;
+    .vimeo-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
     }
     .controls {
       display: flex;
@@ -134,30 +99,22 @@
 <body>
 
 <div class="player-container">
-  <!-- Video Player -->
   <div class="video-wrapper">
-    <video id="videoPlayer" muted controls>
-      <source src="Episode 1/Videos/episode 1.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>    <button id="playButton" onclick="playVideo()">▶</button>  </div>
+    <div class="vimeo-embed">
+      <iframe src="https://player.vimeo.com/video/1193644471?badge=0&autopause=0&player_id=0&app_id=58479"
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        title="episode 1">
+      </iframe>
+    </div>
+  </div>
 
   <!-- Close button overlay -->
   <button class="secondary" onclick="window.close();" style="position: absolute; top: 20px; right: 20px; z-index: 100;">✕ Close</button>
 </div>
 
-<script>
-  function playVideo() {
-    const video = document.getElementById('videoPlayer');
-    const playButton = document.getElementById('playButton');
-    
-    // Unmute and play
-    video.muted = false;
-    video.play();
-    
-    // Hide play button
-    playButton.classList.add('hidden');
-  }
-</script>
+<script src="https://player.vimeo.com/api/player.js"></script>
 
 </body>
 </html>
