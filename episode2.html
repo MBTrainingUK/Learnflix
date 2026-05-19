@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Episode 2 – Who is Responsible? | LearnFlix</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: #0b0b0b;
+      color: #fff;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .scene {
+      width: min(1200px, 95vw);
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,.6);
+      cursor: pointer;
+      background: #111;
+    }
+
+    .scene img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      max-height: 80vh;
+    }
+
+    .speech {
+      position: absolute;
+      top: 10%;
+      max-width: min(380px, 42vw);
+      background: rgba(255,255,255,0.95);
+      color: #111;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: clamp(14px, 1.5vw, 22px);
+      line-height: 1.3;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      transition: all .25s ease;
+      user-select: none;
+    }
+
+    .speech.left {
+      left: 4%;
+    }
+    .speech.right {
+      right: 4%;
+    }
+    .speech.center {
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: min(520px, 86vw);
+    }
+
+    .speech.hse-lower {
+      top: auto;
+      bottom: 18%;
+    }
+
+    .speech .speaker {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .speech .line {
+      white-space: pre-line;
+    }
+
+    .speech.left::after,
+    .speech.right::after,
+    .speech.center::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+    }
+
+    .speech.left::after {
+      left: 26px;
+      border-top-color: rgba(255,255,255,0.95);
+    }
+
+    .speech.right::after {
+      right: 26px;
+      border-top-color: rgba(255,255,255,0.95);
+    }
+
+    .speech.center::after {
+      left: 50%;
+      transform: translateX(-50%);
+      border-top-color: rgba(255,255,255,0.95);
+    }
+
+    .hud {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(to top, rgba(0,0,0,.8), transparent);
+      font-size: 14px;
+    }
+
+    .hint { opacity: 0.9; }
+
+    .back-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: #e50914;
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+      .speech {
+        max-width: 80vw;
+        top: 6%;
+      }
+      .speech.left { left: 3%; }
+      .speech.right { right: 3%; }
+      .speech.center { max-width: 90vw; }
+      .speech.hse-lower { bottom: 22%; }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+
+  <div class="scene" id="scene" onclick="nextLine()" aria-label="Episode 2 scene">
+    <img id="sceneImage" src="Episode 2/Images/Sofa.png" alt="Episode 2 sofa discussion" />
+
+    <div id="speechBubble" class="speech left">
+      <span class="speaker">Sarah:</span>
+      <span class="line">That’s a massive fine.</span>
+    </div>
+
+    <div class="hud">
+      <span id="lineCounter">Line 1 / 19</span>
+      <span class="hint">Click anywhere on the scene to continue</span>
+    </div>
+  </div>
+
+  <script>
+    const dialogue = [
+      { speaker: 'Sarah', side: 'left', text: 'That’s a massive fine.' },
+      { speaker: 'Mike', side: 'right', text: 'It is. And as a CEO, stories like this always catch my attention.' },
+      { speaker: 'Sarah', side: 'left', text: 'Because of the legal responsibility?' },
+      { speaker: 'Mike', side: 'right', text: 'Exactly. Employers are legally required to protect employees and anyone else who could be affected by their work activities.' },
+      { speaker: 'Sarah', side: 'left', text: 'So this company failed to do that?' },
+      { speaker: 'Mike', side: 'right', text: 'Looks that way. They either didn’t carry out proper risk assessments or failed to keep them updated.' },
+      { speaker: 'Sarah', side: 'left', text: 'A lot of people probably think risk assessments are just paperwork.' },
+      { speaker: 'Mike', side: 'right', text: 'That’s the mistake some companies make. Risk assessments are there to identify hazards before someone gets hurt.' },
+      { speaker: 'Sarah', side: 'left', text: 'What does the law actually require employers to do?' },
+      { speaker: 'Mike', side: 'right', text: 'According to TRBS 1111 and, in the UK, the Management of Health and Safety at Work Regulations 1999, employers must assess risks in the workplace and put suitable control measures in place.' },
+      { speaker: 'Sarah', side: 'left', text: 'So what’s the minimum an employer has to do?' },
+      { speaker: 'Mike', side: 'right', text: 'At the very least, employers need to:\n\n• Identify workplace hazards\n• Decide who could be harmed and how\n• Evaluate the level of risk\n• Implement controls to reduce those risks\n• Record important findings\n• Regularly review and update assessments' },
+      { speaker: 'Sarah', side: 'left', text: 'That sounds pretty straightforward when you explain it like that.' },
+      { speaker: 'Mike', side: 'right', text: 'It is, but it only works if companies take it seriously. Risks change over time — new equipment, new processes, different staff — so assessments can’t just sit in a folder gathering dust.' },
+      { speaker: 'TV Reporter', side: 'center', text: '“The investigation concluded that the incident could have been prevented if suitable risk assessments and safety controls had been implemented.”' },
+      { speaker: 'Sarah', side: 'left', text: 'That’s hard to hear.' },
+      { speaker: 'Mike', side: 'right', text: 'It is. Honestly, tomorrow morning I’m going to speak with our Safety Coordinator and make sure all of our risk assessments are fully up to date.' },
+      { speaker: 'Sarah', side: 'left', text: 'Probably a smart move.' },
+      { speaker: 'Mike', side: 'right', text: 'Absolutely. Good risk assessments don’t just protect the business — they protect people.' }
+    ];
+
+    const mikeThoughts = [
+      {
+        speaker: 'Mike (thought)',
+        side: 'left',
+        text: 'Last night’s news really stuck with me. Risk assessments aren’t something businesses can afford to overlook — not legally, and definitely not morally.'
+      },
+      {
+        speaker: 'Mike (thought)',
+        side: 'left',
+        text: 'As CEO, I have a responsibility to make sure we’re protecting our employees, contractors, visitors… everyone. That’s why I’m meeting with our Health and Safety Coordinator this morning to review our responsibilities and make sure our risk assessments are fully up to date.'
+      }
+    ];
+
+    const hseDialogue = [
+      { speaker: 'Mike', side: 'right', text: 'Morning, Emma. After seeing that news report last night, I wanted to check in about our risk assessments.' },
+      { speaker: 'Emma', side: 'left', text: 'Morning, Mike. I saw it too. It’s a good reminder of why risk assessments are so important.' },
+      { speaker: 'Mike', side: 'right', text: 'Exactly. Can we go over our responsibilities again? I want to make sure we’re covering everything properly.' },
+      { speaker: 'Emma', side: 'left', text: 'Of course. Under health and safety law, employers must identify hazards, assess risks, and put suitable controls in place to reduce the chance of harm.' },
+      { speaker: 'Mike', side: 'right', text: 'And that responsibility ultimately sits with the employer, right?' },
+      { speaker: 'Emma', side: 'left', text: 'Yes. Even if tasks are delegated, the employer still remains legally responsible for ensuring risk assessments are completed correctly.' },
+      { speaker: 'Mike', side: 'right', text: 'That links to TRBS 1111 as well, doesn’t it?' },
+      { speaker: 'Emma', side: 'left', text: 'It does. TRBS 1111 explains that risk assessments must be systematic and consider all relevant factors that could affect health and safety.' },
+      { speaker: 'Mike', side: 'right', text: 'What kind of factors should be considered?' },
+      { speaker: 'Emma', side: 'left', text: 'Things like:\n\n• The equipment being used\n• The working environment\n• Hazardous substances\n• Employee experience and training\n• Maintenance activities\n• Contractors or visitors on site\n• Emergency situations\n• Changes to processes or work areas' },
+      { speaker: 'Mike', side: 'right', text: 'So it’s not just about obvious physical dangers.' },
+      { speaker: 'Emma', side: 'left', text: 'Exactly. Risks can come from many different sources, and assessments need to reflect real working conditions.' },
+      { speaker: 'Learner Interaction Prompt', side: 'center', text: 'On-screen question:\n\nWhich of the following should be considered during a risk assessment?\n\nA. Changes to work processes\nB. Contractors and visitors\nC. Employee training and experience\nD. All of the above' },
+      { speaker: 'Emma', side: 'left', text: 'That’s right — the correct answer is D. All of the above. Every factor that could impact health and safety should be considered.' },
+      { speaker: 'Mike', side: 'right', text: 'What about delegating risk assessments? Can managers or supervisors carry them out?' },
+      { speaker: 'Emma', side: 'left', text: 'Yes, they can — but there are rules around that. The person carrying out the assessment must be competent. That means they need the right knowledge, training, and experience to identify hazards and evaluate risks properly.' },
+      { speaker: 'Mike', side: 'right', text: 'So responsibility can be shared, but accountability still stays with the employer.' },
+      { speaker: 'Emma', side: 'left', text: 'Exactly. Delegating the task doesn’t remove the employer’s legal duty. The employer must still ensure assessments are suitable, sufficient, and regularly reviewed.' },
+      { speaker: 'Mike', side: 'right', text: 'How often should reviews happen?' },
+      { speaker: 'Emma', side: 'left', text: 'Whenever there’s a significant change — like new equipment, new substances, changes to procedures, or after an incident or near miss. Even without changes, regular reviews are good practice to make sure assessments stay accurate.' },
+      { speaker: 'Mike', side: 'right', text: 'Good. I’d rather review things now than react after something goes wrong.' },
+      { speaker: 'Emma', side: 'left', text: 'That’s the right approach. Effective risk assessments help prevent injuries, protect employees, and keep the business compliant with legal requirements.' },
+      { speaker: 'Mike', side: 'right', text: 'Let’s schedule a full review with department managers this week and make sure everything is current.' },
+      { speaker: 'Emma', side: 'left', text: 'I’ll arrange it.' }
+    ];
+
+    let idx = 0;
+    let thoughtIdx = -1;
+    let hseIdx = -1;
+    let scenePhase = 'dialogue';
+    const bubble = document.getElementById('speechBubble');
+    const counter = document.getElementById('lineCounter');
+    const sceneImage = document.getElementById('sceneImage');
+
+    function renderEntry(entry, prefix, index, total) {
+      bubble.className = 'speech ' + entry.side;
+      bubble.innerHTML = `<span class="speaker">${entry.speaker}:</span><span class="line">${entry.text}</span>`;
+      counter.textContent = `${prefix} ${index} / ${total}`;
+    }
+
+    function renderLine() {
+      renderEntry(dialogue[idx], 'Line', idx + 1, dialogue.length);
+    }
+
+    function renderThought() {
+      renderEntry(mikeThoughts[thoughtIdx], 'Thought', thoughtIdx + 1, mikeThoughts.length);
+    }
+
+    function renderHSELine() {
+      const current = hseDialogue[hseIdx];
+      if (current.speaker === 'Mike') {
+        bubble.className = 'speech left hse-lower';
+      } else if (current.speaker === 'Emma') {
+        bubble.className = 'speech right hse-lower';
+      } else {
+        bubble.className = 'speech ' + current.side;
+      }
+      bubble.innerHTML = `<span class="speaker">${current.speaker}:</span><span class="line">${current.text}</span>`;
+      counter.textContent = `HSE ${hseIdx + 1} / ${hseDialogue.length}`;
+    }
+
+    function startThoughtScene() {
+      scenePhase = 'thoughts';
+      thoughtIdx = 0;
+      sceneImage.src = 'Episode 2/Images/Exterior.png';
+      sceneImage.alt = 'Episode 2 exterior reflection scene';
+      renderThought();
+    }
+
+    function startHSEScene() {
+      scenePhase = 'hse';
+      hseIdx = 0;
+      sceneImage.src = 'Episode 2/Images/HSE.png';
+      sceneImage.alt = 'Episode 2 HSE meeting scene';
+      renderHSELine();
+    }
+
+    function nextLine() {
+      if (scenePhase === 'dialogue') {
+        if (idx < dialogue.length - 1) {
+          idx += 1;
+          renderLine();
+        } else {
+          startThoughtScene();
+        }
+        return;
+      }
+
+      if (scenePhase === 'thoughts') {
+        if (thoughtIdx < mikeThoughts.length - 1) {
+          thoughtIdx += 1;
+          renderThought();
+        } else {
+          startHSEScene();
+        }
+        return;
+      }
+
+      if (scenePhase === 'hse') {
+        if (hseIdx < hseDialogue.length - 1) {
+          hseIdx += 1;
+          renderHSELine();
+        } else {
+          window.location.href = 'episode2-screen2.html';
+        }
+      }
+    }
+
+    renderLine();
+  </script>
+</body>
+</html>

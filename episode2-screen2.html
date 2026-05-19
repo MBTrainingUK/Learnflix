@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screen 2: Identifying Hazards | LearnFlix</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: #0b0b0b;
+      color: #fff;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      padding: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .title {
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      font-weight: 800;
+    }
+
+    .instruction {
+      color: #ffd166;
+      font-weight: 700;
+      font-size: clamp(0.85rem, 1.4vw, 1rem);
+    }
+
+    .btn {
+      background: #e50914;
+      border: 0;
+      color: #fff;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: #2d2d2d;
+      border: 1px solid rgba(255,255,255,.22);
+    }
+
+    body.locked .layout,
+    body.locked .topbar {
+      pointer-events: none;
+      filter: blur(1px);
+      opacity: .75;
+    }
+
+    .audio-lock {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.78);
+      backdrop-filter: blur(2px);
+      text-align: center;
+      padding: 20px;
+    }
+
+    body.locked .audio-lock {
+      display: flex;
+    }
+
+    .audio-card {
+      width: min(560px, 92vw);
+      background: #151515;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 24px 55px rgba(0,0,0,.5);
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+    }
+
+    .audio-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .audio-text {
+      font-size: .95rem;
+      color: #ddd;
+      line-height: 1.4;
+    }
+
+    .audio-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .layout {
+      width: min(1560px, 99vw);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .workshop {
+      position: relative;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #000;
+      box-shadow: 0 20px 45px rgba(0,0,0,.45);
+    }
+
+    .workshop-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: 38% center;
+      opacity: .95;
+      pointer-events: none;
+    }
+
+    .workshop::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,.025) 0,
+        rgba(255,255,255,.025) 2px,
+        transparent 2px,
+        transparent 68px
+      );
+      pointer-events: none;
+    }
+
+    .scene-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.22);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 3;
+    }
+
+    .hazard {
+      position: absolute;
+      z-index: 2;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .hazard:hover {
+      transform: none;
+    }
+
+    .hazard.found {
+      border-style: solid;
+      border-color: #29d17f;
+      background: rgba(41,209,127,.20);
+      animation: pulse 2.5s 1;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,59,48,.25); }
+      70% { box-shadow: 0 0 0 12px rgba(255,59,48,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); }
+    }
+
+    .h1 { left: 7.43%; top: 12.25%; width: 24.00%; height: 24.00%; }  /* Unguarded machine */
+    .h2 { left: 9.79%; top: 66.33%; width: 69.86%; height: 23.36%; }  /* Wet floor spill */
+    .h3 { left: 67.58%; top: 68.72%; width: 31.70%; height: 15.17%; }  /* Trailing cable */
+    .h4 { left: 67.31%; top: 10.66%; width: 21.00%; height: 22.00%; }  /* Loud machinery area */
+    .h5 { left: 31.18%; top: 0.30%; width: 42.62%; height: 14.99%; }  /* Poor lighting zone */
+    .h6 { left: 78.00%; top: 35.09%; width: 22.00%; height: 27.00%; }  /* Manual handling */
+
+    .hazard-tag {
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      background: rgba(0,0,0,.8);
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      display: none;
+    }
+
+    .hazard.found .hazard-tag {
+      display: block;
+    }
+
+    .clipboard {
+      position: relative;
+      min-height: 0;
+      height: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0,0,0,.45);
+    }
+
+    .clipboard img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .34;
+    }
+
+    .clipboard-panel {
+      position: absolute;
+      inset: 12px;
+      padding: 20px;
+      background: linear-gradient(to bottom, rgba(11,11,11,.72), rgba(11,11,11,.9));
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .clip-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: .4px;
+    }
+
+    .clip-sub {
+      font-size: .88rem;
+      color: #d4d4d4;
+      margin-bottom: 6px;
+    }
+
+    .checklist {
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      margin-top: 4px;
+      max-height: 58vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: start;
+      gap: 8px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      padding: 8px 10px;
+      transition: .2s;
+      min-height: 40px;
+    }
+
+    .checklist li.done {
+      border-color: rgba(41,209,127,.75);
+      background: rgba(41,209,127,.14);
+    }
+
+    .tick {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.35);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .checklist li.done .tick {
+      border-color: #29d17f;
+      background: #29d17f;
+      color: #052313;
+      font-weight: 900;
+    }
+
+    .status {
+      margin-top: auto;
+      padding-top: 8px;
+      font-size: .95rem;
+      font-weight: 700;
+      background: rgba(0,0,0,.35);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: rgba(20,20,20,.95);
+      border: 1px solid rgba(41,209,127,.75);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #dfffe9;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: .25s;
+      max-width: min(420px, 90vw);
+      font-size: .92rem;
+    }
+
+    .next-btn {
+      position: fixed;
+      right: 18px;
+      bottom: 72px;
+      z-index: 20;
+      display: none;
+      background: #29d17f;
+      color: #052313;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+
+    .next-btn.show {
+      display: inline-block;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .workshop { min-height: 0; }
+      .clipboard { min-height: 46vh; }
+    }
+  </style>
+</head>
+<body>
+  <audio
+    id="introAudio"
+    preload="auto"
+    src="Episode 2/Audio/ElevenLabs_2026-05-19T14_13_17_Nathaniel%20C%20-%20Warm%20%26%20Friendly%20Customer%20Care%20Agent_pvc_sp100_s28_sb29_se0_b_m2.mp3">
+  </audio>
+
+  <div class="audio-lock" id="audioLock" aria-live="polite">
+    <div class="audio-card">
+      <div class="audio-title">Narration playing…</div>
+      <div class="audio-text">Please listen to the brief before interacting with the hazard task.</div>
+      <div class="audio-actions" id="audioActions" style="display:none;">
+        <button class="btn" id="startAudioBtn">▶ Start Narration</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <button class="btn" onclick="window.location.href='episode2.html'">← Back</button>
+    <div class="title">SCREEN 2: IDENTIFYING HAZARDS</div>
+    <div class="instruction">👉 Click hazards in the environment</div>
+  </div>
+
+  <div class="layout">
+    <section class="workshop" aria-label="Workshop floor interactive area">
+      <img id="workshopBg" class="workshop-bg" src="Episode 2/Images/Workshop.png" alt="Workshop floor" />
+      <div class="scene-label">Workshop Floor</div>
+
+      <button class="hazard h1" data-hazard="unguarded-machine" aria-label="Unguarded machine hotspot">
+        <span class="hazard-tag">Unguarded machine</span>
+      </button>
+      <button class="hazard h2" data-hazard="wet-floor-spill" aria-label="Wet floor spill hotspot">
+        <span class="hazard-tag">Wet floor spill</span>
+      </button>
+      <button class="hazard h3" data-hazard="trailing-cable" aria-label="Trailing cable hotspot">
+        <span class="hazard-tag">Trailing cable</span>
+      </button>
+      <button class="hazard h4" data-hazard="loud-machinery-area" aria-label="Loud machinery area hotspot">
+        <span class="hazard-tag">Loud machinery area</span>
+      </button>
+      <button class="hazard h5" data-hazard="poor-lighting-zone" aria-label="Poor lighting zone hotspot">
+        <span class="hazard-tag">Poor lighting zone</span>
+      </button>
+      <button class="hazard h6" data-hazard="manual-handling-heavy-box" aria-label="Manual handling heavy box hotspot">
+        <span class="hazard-tag">Manual handling (heavy box)</span>
+      </button>
+    </section>
+
+    <aside class="clipboard" aria-label="Hazard log clipboard">
+      <img src="Episode 2/Images/Clipboard.png" alt="Clipboard" />
+      <div class="clipboard-panel">
+        <div class="clip-title">Hazard Log</div>
+        <div class="clip-sub">Tick appears as hazards are identified.</div>
+
+        <ul class="checklist" id="checklist">
+          <li data-item="unguarded-machine"><span class="tick"></span><span>Unguarded machine</span></li>
+          <li data-item="wet-floor-spill"><span class="tick"></span><span>Wet floor spill</span></li>
+          <li data-item="trailing-cable"><span class="tick"></span><span>Trailing cable</span></li>
+          <li data-item="loud-machinery-area"><span class="tick"></span><span>Loud machinery area</span></li>
+          <li data-item="poor-lighting-zone"><span class="tick"></span><span>Poor lighting zone</span></li>
+          <li data-item="manual-handling-heavy-box"><span class="tick"></span><span>Manual handling of heavy box</span></li>
+        </ul>
+
+        <div class="status" id="statusText">0 / 6 hazards identified</div>
+      </div>
+    </aside>
+  </div>
+
+  <button class="next-btn" id="nextBtn" aria-label="Go to next screen">Next →</button>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const labels = {
+      'unguarded-machine': 'Unguarded machine added to hazard log',
+      'wet-floor-spill': 'Wet floor spill added to hazard log',
+      'trailing-cable': 'Trailing cable added to hazard log',
+      'loud-machinery-area': 'Loud machinery area added to hazard log',
+      'poor-lighting-zone': 'Poor lighting zone added to hazard log',
+      'manual-handling-heavy-box': 'Manual handling of heavy box added to hazard log'
+    };
+
+    const hotspots = [...document.querySelectorAll('.hazard')];
+    const listItems = [...document.querySelectorAll('.checklist li')];
+    const statusText = document.getElementById('statusText');
+    const toast = document.getElementById('toast');
+    const workshop = document.querySelector('.workshop');
+    const workshopBg = document.getElementById('workshopBg');
+    const introAudio = document.getElementById('introAudio');
+    const audioActions = document.getElementById('audioActions');
+    const startAudioBtn = document.getElementById('startAudioBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let screenLocked = true;
+
+    let found = 0;
+    let toastTimer;
+
+    function syncWorkshopAspect() {
+      if (workshopBg.naturalWidth && workshopBg.naturalHeight) {
+        workshop.style.aspectRatio = `${workshopBg.naturalWidth} / ${workshopBg.naturalHeight}`;
+      }
+    }
+
+    function lockScreen() {
+      screenLocked = true;
+      document.body.classList.add('locked');
+    }
+
+    function unlockScreen() {
+      screenLocked = false;
+      document.body.classList.remove('locked');
+      audioActions.style.display = 'none';
+    }
+
+    async function startIntroAudio() {
+      try {
+        await introAudio.play();
+      } catch (err) {
+        audioActions.style.display = 'flex';
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+    }
+
+    function updateStatus() {
+      statusText.textContent = `${found} / 6 hazards identified`;
+      if (found === 6) {
+        nextBtn.classList.add('show');
+        showToast('Great work — all hazards logged.');
+      } else {
+        nextBtn.classList.remove('show');
+      }
+    }
+
+    hotspots.forEach((spot) => {
+      spot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (screenLocked) return;
+        const id = spot.dataset.hazard;
+        const list = listItems.find((li) => li.dataset.item === id);
+
+        if (!spot.classList.contains('found')) {
+          spot.classList.add('found');
+          if (list && !list.classList.contains('done')) {
+            list.classList.add('done');
+            const tick = list.querySelector('.tick');
+            if (tick) tick.textContent = '✓';
+          }
+          found += 1;
+          showToast(labels[id]);
+          updateStatus();
+        } else {
+          showToast('Already logged.');
+        }
+      });
+    });
+
+    introAudio.addEventListener('ended', unlockScreen);
+    workshopBg.addEventListener('load', syncWorkshopAspect);
+    syncWorkshopAspect();
+
+    startAudioBtn.addEventListener('click', async () => {
+      await startIntroAudio();
+      audioActions.style.display = 'none';
+    });
+
+    nextBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    lockScreen();
+    startIntroAudio();
+    updateStatus();
+  </script>
+</body>
+</html>

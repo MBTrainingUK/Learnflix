@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotspot Box Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      padding: 14px;
+    }
+    .top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .btn {
+      border: 0;
+      background: #e50914;
+      color: #fff;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn.secondary { background: #2b2b2b; border: 1px solid #555; }
+    .hint { color: #ccc; font-size: 0.9rem; }
+
+    .stage {
+      position: relative;
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      border: 1px solid #3a3a3a;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+    .stage img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .box {
+      position: absolute;
+      border: 2px dashed #ff3b30;
+      background: rgba(255,59,48,0.16);
+      cursor: move;
+      user-select: none;
+      z-index: 10;
+    }
+    .box.active { border-color: #2ddf85; background: rgba(45,223,133,0.14); }
+    .label {
+      position: absolute;
+      left: 0;
+      top: -24px;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #666;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .handle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      right: -7px;
+      bottom: -7px;
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 2px;
+      cursor: nwse-resize;
+    }
+
+    textarea {
+      width: min(1200px, 100%);
+      margin: 10px auto 0;
+      display: block;
+      min-height: 160px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #141414;
+      color: #e8e8e8;
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <button class="btn" id="copyBtn">Copy CSS</button>
+    <button class="btn secondary" id="resetBtn">Reset</button>
+    <button class="btn secondary" id="saveBtn">Save to browser</button>
+    <button class="btn secondary" id="loadBtn">Load saved</button>
+    <span class="hint">Drag boxes to move. Drag white corner to resize.</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <img id="stageImage" src="Episode 2/Images/Workshop.png" alt="Workshop" />
+  </div>
+
+  <textarea id="output" readonly></textarea>
+
+  <script>
+    const defaults = {
+      h1: { name: 'Unguarded machine', left: 6, top: 31, width: 24, height: 24 },
+      h2: { name: 'Wet floor spill', left: 39, top: 73, width: 16, height: 13 },
+      h3: { name: 'Trailing cable', left: 44, top: 61, width: 29, height: 10 },
+      h4: { name: 'Loud machinery area', left: 72, top: 28, width: 21, height: 22 },
+      h5: { name: 'Poor lighting zone', left: 51, top: 6, width: 21, height: 12 },
+      h6: { name: 'Manual handling', left: 70, top: 61, width: 22, height: 27 }
+    };
+
+    const stage = document.getElementById('stage');
+    const stageImage = document.getElementById('stageImage');
+    const output = document.getElementById('output');
+    const boxes = {};
+
+    function syncStageAspect() {
+      if (stageImage.naturalWidth && stageImage.naturalHeight) {
+        stage.style.aspectRatio = `${stageImage.naturalWidth} / ${stageImage.naturalHeight}`;
+      }
+    }
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function renderOutput() {
+      const lines = Object.keys(boxes).map(id => {
+        const b = boxes[id].data;
+        return `.${id} { left: ${b.left.toFixed(2)}%; top: ${b.top.toFixed(2)}%; width: ${b.width.toFixed(2)}%; height: ${b.height.toFixed(2)}%; }  /* ${b.name} */`;
+      });
+      output.value = lines.join('\n');
+    }
+
+    function positionEl(el, data) {
+      el.style.left = `${data.left}%`;
+      el.style.top = `${data.top}%`;
+      el.style.width = `${data.width}%`;
+      el.style.height = `${data.height}%`;
+    }
+
+    function init() {
+      const saved = localStorage.getItem('hazard-boxes');
+      const source = saved ? JSON.parse(saved) : defaults;
+
+      stage.querySelectorAll('.box').forEach(b => b.remove());
+
+      Object.keys(source).forEach(id => {
+        const data = JSON.parse(JSON.stringify(source[id]));
+        const el = document.createElement('div');
+        el.className = `box ${id}`;
+
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = `${id.toUpperCase()} – ${data.name}`;
+
+        const handle = document.createElement('div');
+        handle.className = 'handle';
+
+        el.appendChild(label);
+        el.appendChild(handle);
+        stage.appendChild(el);
+        positionEl(el, data);
+
+        boxes[id] = { el, data, handle };
+
+        let mode = null;
+        let sx = 0, sy = 0, start = null;
+
+        function startAction(e, action) {
+          e.preventDefault();
+          e.stopPropagation();
+          mode = action;
+          sx = e.clientX;
+          sy = e.clientY;
+          start = { ...data };
+          Object.values(boxes).forEach(b => b.el.classList.remove('active'));
+          el.classList.add('active');
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', endAction);
+        }
+
+        function onMove(e) {
+          const rect = stage.getBoundingClientRect();
+          const dxPct = ((e.clientX - sx) / rect.width) * 100;
+          const dyPct = ((e.clientY - sy) / rect.height) * 100;
+
+          if (mode === 'move') {
+            data.left = clamp(start.left + dxPct, 0, 100 - data.width);
+            data.top = clamp(start.top + dyPct, 0, 100 - data.height);
+          } else if (mode === 'resize') {
+            data.width = clamp(start.width + dxPct, 3, 100 - start.left);
+            data.height = clamp(start.height + dyPct, 3, 100 - start.top);
+          }
+
+          positionEl(el, data);
+          renderOutput();
+        }
+
+        function endAction() {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', endAction);
+          mode = null;
+        }
+
+        el.addEventListener('pointerdown', (e) => startAction(e, 'move'));
+        handle.addEventListener('pointerdown', (e) => startAction(e, 'resize'));
+      });
+
+      renderOutput();
+    }
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(output.value);
+      alert('CSS copied. Paste it into episode2-screen2.html over the .h1-.h6 lines.');
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      localStorage.removeItem('hazard-boxes');
+      init();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const data = {};
+      Object.keys(boxes).forEach(id => data[id] = boxes[id].data);
+      localStorage.setItem('hazard-boxes', JSON.stringify(data));
+      alert('Saved in browser.');
+    });
+
+    document.getElementById('loadBtn').addEventListener('click', init);
+
+    stageImage.addEventListener('load', syncStageAspect);
+    syncStageAspect();
+    init();
+  </script>
+</body>
+</html>
