@@ -21,12 +21,11 @@
       background: #000;
     }
     .video-wrapper {
-      /* fill as much space as possible while keeping 16:9 */
-      width: min(100vw, calc(100vh * 16 / 9));
-      height: min(100vh, calc(100vw * 9 / 16));
-      position: relative;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
       background: #000;
-      border-radius: 6px;
       overflow: hidden;
     }
     .vimeo-embed,
