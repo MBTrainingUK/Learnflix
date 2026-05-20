@@ -1,0 +1,151 @@
+Knowledge Check (WhatsApp / Email Chat Style)
+Episode 2 – Risk Assessment
+
+Use this as rewritten copy for the end test.
+Tone: short message-style prompts + reply-style answer options.
+
+────────────────────────────────────────────────────────
+Q1 (Drag & Drop) – Put the steps in order
+
+Emma (H&S):
+“Hey Mike 👋 Can you put the risk assessment steps in the right order for me?”
+
+Drag items (in correct sequence):
+1) Determine hazards
+2) Assess hazards
+3) Determine measures
+4) Implement measures
+5) Review effectiveness
+
+Feedback (Correct):
+“✅ Nice one — exactly right.”
+
+Feedback (Incorrect):
+“❌ Not quite. Check the order and try again.”
+
+────────────────────────────────────────────────────────
+Q2 (Multiple Choice)
+
+Mike:
+“Quick one — what does a risk assessment actually do?”
+
+A. “Looks at possible harm from work/equipment + picks controls to reduce risk.” ✅
+B. “Means zero danger ever, no matter what.”
+C. “Just list hazards, no need to act.”
+D. “Only about risks to clients/contractors.”
+
+Correct answer: A
+
+────────────────────────────────────────────────────────
+Q3 (Multiple Choice)
+
+Sarah:
+“What exactly is a hazard?”
+
+A. “Someone trained for a task.”
+B. “Something/situation that could cause harm.” ✅
+C. “A completed accident report.”
+D. “The likelihood harm happens.”
+
+Correct answer: B
+
+────────────────────────────────────────────────────────
+Q4 (Drag & Drop True/False)
+
+Emma:
+“New machine installed, but current RA doesn’t include it.
+TRBS 1111 says we can wait till next year’s review.”
+
+Drop target options:
+- True
+- False ✅
+
+Feedback (Correct):
+“✅ Correct — changes like new equipment mean review now, not later.”
+
+Feedback (Incorrect):
+“❌ Incorrect — risk assessments must be reviewed when significant changes happen.”
+
+────────────────────────────────────────────────────────
+Q5 (Multiple Choice)
+
+Mike:
+“Which statement is right about ongoing responsibility?”
+
+A. “Risk assessments are one-off jobs unless the company grows.”
+B. “Employer must monitor and make sure controls stay effective while equipment is used.” ✅
+C. “TRBS 1111 is only for employees, not contractors/temp staff.”
+D. “Just follow technical rules on paper, no need to check if they work.”
+
+Correct answer: B
+
+────────────────────────────────────────────────────────
+Q6 (Pick Many)
+
+Emma:
+“Who should we consider in a risk assessment? (Select all that apply)”
+
+A. “Employees” ✅
+B. “Contractors” ✅
+C. “Visitors / other affected people” ✅
+D. “Only managers”
+
+Correct answers: A, B, C
+
+────────────────────────────────────────────────────────
+Q7 (Multiple Choice)
+
+Sarah:
+“If we get a near miss or process change, what should we do?”
+
+A. “Ignore it if no one got hurt.”
+B. “Wait for annual review.”
+C. “Review and update the assessment + controls.” ✅
+D. “Just give a verbal warning.”
+
+Correct answer: C
+
+────────────────────────────────────────────────────────
+Q8 (Pick Many)
+
+Mike:
+“What events should trigger a review? (Pick all that apply)”
+
+A. “New equipment/substances introduced” ✅
+B. “No changes at all for years”
+C. “Incident or near miss happens” ✅
+D. “Work process/layout changes” ✅
+
+Correct answers: A, C, D
+
+────────────────────────────────────────────────────────
+Q9 (Multiple Choice)
+
+Emma:
+“Once a hazard is identified, what’s the next step?”
+
+A. “Archive the form.”
+B. “Define and apply suitable protective measures.” ✅
+C. “Tell accounts team.”
+D. “Wait for management before assessing risks.”
+
+Correct answer: B
+
+────────────────────────────────────────────────────────
+Q10 (Multiple Choice)
+
+Sarah:
+“Final check — who is legally responsible for making sure risk assessments are done properly?”
+
+A. “Supervisor who filled in the form.”
+B. “Health & Safety team only.”
+C. “Employer (responsibility can’t be transferred).” ✅
+D. “No one, as long as it’s documented.”
+
+Correct answer: C
+
+────────────────────────────────────────────────────────
+Suggested result message style:
+“🎯 You scored {score}%
+Pass mark: 80%
+Great work — now apply this on-site.”

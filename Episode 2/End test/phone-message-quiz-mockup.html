@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>End Test Mockup – WhatsApp Style</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 20%, #1b1f1f, #0b0b0b 60%);
+      display: grid;
+      place-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .phone {
+      width: min(390px, 100%);
+      height: min(820px, 92vh);
+      background: #0f1419;
+      border: 8px solid #1a1f24;
+      border-radius: 32px;
+      box-shadow: 0 26px 60px rgba(0,0,0,.55);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .top {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: #1f2c34;
+    }
+    .contact { font-weight: 700; }
+    .status { font-size: 12px; color: #c7d0d6; margin-top: 3px; }
+
+    .chat {
+      overflow: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background:
+        radial-gradient(circle at 20px 20px, rgba(255,255,255,.025) 1px, transparent 1px),
+        radial-gradient(circle at 60px 80px, rgba(255,255,255,.02) 1px, transparent 1px),
+        #0b141a;
+      background-size: 80px 80px, 110px 110px, auto;
+    }
+
+    .bubble {
+      max-width: 84%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.35;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .bubble.in {
+      align-self: flex-start;
+      background: #202c33;
+      border-top-left-radius: 6px;
+    }
+    .bubble.out {
+      align-self: flex-end;
+      background: #005c4b;
+      border-top-right-radius: 6px;
+    }
+    .bubble.system {
+      align-self: center;
+      background: #1f2328;
+      border: 1px solid rgba(255,255,255,.1);
+      color: #d0d7de;
+      text-align: center;
+      max-width: 92%;
+    }
+
+    .answers {
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: #111b21;
+      display: grid;
+      gap: 8px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 10px;
+      background: #1f2c33;
+      color: #fff;
+      padding: 10px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .option:hover { background: #27373f; }
+    .option:disabled { opacity: .55; cursor: not-allowed; }
+    .option.selected {
+      border-color: #25d366;
+      box-shadow: inset 0 0 0 1px rgba(37,211,102,.45);
+      background: #25443e;
+    }
+
+    .submit-answer {
+      display: none;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      background: #00a884;
+      color: #eafff9;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .submit-answer.show { display: block; }
+
+    .continue {
+      display: none;
+      margin-top: 4px;
+      border: 0;
+      border-radius: 10px;
+      background: #25d366;
+      color: #0b2714;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .continue.show { display: block; }
+
+    .episode-complete {
+      display: none;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      background: #25d366;
+      color: #0b2714;
+      padding: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .episode-complete.show { display: block; }
+
+    .meta {
+      text-align: center;
+      font-size: 12px;
+      color: #a9b4bd;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="top">
+      <div class="contact">Emma (H&S)</div>
+      <div class="status">online</div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="answers" id="answers"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        from: "First one 👇 Which order looks right for a risk assessment process?",
+        options: [
+          "A) Identify hazards → assess risk → choose controls → implement controls → review effectiveness.",
+          "B) Implement controls → identify hazards → review effectiveness → assess risk.",
+          "C) Assess risk → identify hazards → review effectiveness → implement controls.",
+          "D) Identify hazards only, then file it."
+        ],
+        correct: 0,
+        correctLabel: "A"
+      },
+      {
+        from: "Quick one Mike — what does a risk assessment actually do?",
+        options: [
+          "A) Looks at possible harm from work/equipment and sets controls.",
+          "B) Means zero danger ever, no matter what.",
+          "C) Just list hazards, no action needed.",
+          "D) Only about clients/contractors."
+        ],
+        correct: 0,
+        correctLabel: "A"
+      },
+      {
+        from: "What exactly is a hazard?",
+        options: [
+          "A) Someone trained for a task.",
+          "B) Something/situation that could cause harm.",
+          "C) A completed accident report.",
+          "D) The likelihood harm happens."
+        ],
+        correct: 1,
+        correctLabel: "B"
+      },
+      {
+        from: "We’ve just added a new machine and it hasn’t been assessed yet — can we wait until next year to review it?",
+        options: [
+          "A) Yes",
+          "B) No"
+        ],
+        correct: 1,
+        correctLabel: "B (No)"
+      },
+      {
+        from: "Which statement is correct about employer duties over time?",
+        options: [
+          "A) Risk assessments are one-off unless the company expands.",
+          "B) Employer must monitor and ensure controls stay effective during use.",
+          "C) TRBS 1111 only applies to employees.",
+          "D) Paper compliance is enough without checking practical effectiveness."
+        ],
+        correct: 1,
+        correctLabel: "B"
+      },
+      {
+        type: 'multi',
+        from: "Pick all that apply: who should be considered in a workplace risk assessment?",
+        options: [
+          "A) Employees",
+          "B) Contractors",
+          "C) Visitors / others who may be affected",
+          "D) No one outside management"
+        ],
+        correctMany: [0, 1, 2],
+        correctLabel: "A, B and C"
+      },
+      {
+        from: "If there’s a near miss or significant change, what should happen next?",
+        options: [
+          "A) Ignore it if no one was injured.",
+          "B) Wait for annual review.",
+          "C) Review and update the risk assessment and controls.",
+          "D) Only give a verbal warning."
+        ],
+        correct: 2,
+        correctLabel: "C"
+      },
+      {
+        type: 'multi',
+        from: "Pick all triggers that should prompt a review of risk assessments:",
+        options: [
+          "A) New equipment/substances introduced",
+          "B) Incident or near miss",
+          "C) Changes to process or work area",
+          "D) Nothing has changed at all"
+        ],
+        correctMany: [0, 1, 2],
+        correctLabel: "A, B and C"
+      },
+      {
+        from: "After identifying a hazard, what should be done next?",
+        options: [
+          "A) Archive the document.",
+          "B) Define and implement suitable protective measures.",
+          "C) Inform accounting.",
+          "D) Wait for management approval before doing anything."
+        ],
+        correct: 1,
+        correctLabel: "B"
+      },
+      {
+        from: "Final check: who remains legally responsible even if tasks are delegated?",
+        options: [
+          "A) Supervisor who completed the form.",
+          "B) H&S team only.",
+          "C) Employer — responsibility can’t be transferred.",
+          "D) No one if it’s documented."
+        ],
+        correct: 2,
+        correctLabel: "C"
+      }
+    ];
+
+    const chat = document.getElementById('chat');
+    const answers = document.getElementById('answers');
+
+    let qIndex = 0;
+    let score = 0;
+    let selectedMany = [];
+
+    function scrollChatToBottom() {
+      chat.scrollTop = chat.scrollHeight;
+      requestAnimationFrame(() => {
+        chat.scrollTop = chat.scrollHeight;
+      });
+      setTimeout(() => {
+        chat.scrollTop = chat.scrollHeight;
+      }, 20);
+    }
+
+    function addBubble(text, type = 'in') {
+      const b = document.createElement('div');
+      b.className = `bubble ${type}`;
+      b.textContent = text;
+      chat.appendChild(b);
+      scrollChatToBottom();
+    }
+
+    function showQuestion() {
+      const q = questions[qIndex];
+      answers.innerHTML = '';
+      selectedMany = [];
+
+      addBubble(q.from, 'in');
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.textContent = opt;
+        if (q.type === 'multi') {
+          btn.addEventListener('click', () => toggleMulti(i, btn));
+        } else {
+          btn.addEventListener('click', () => selectSingle(i));
+        }
+        answers.appendChild(btn);
+      });
+
+      if (q.type === 'multi') {
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'submit-answer';
+        submitBtn.id = 'submitMany';
+        submitBtn.textContent = 'Send selected replies';
+        submitBtn.addEventListener('click', submitMulti);
+        answers.appendChild(submitBtn);
+      }
+
+      const hint = document.createElement('div');
+      hint.className = 'meta';
+      hint.textContent = q.type === 'multi'
+        ? `Question ${qIndex + 1} of ${questions.length} • Select all that apply`
+        : `Question ${qIndex + 1} of ${questions.length}`;
+      answers.appendChild(hint);
+
+      scrollChatToBottom();
+    }
+
+    function finishAnswer(isCorrect, selectedText) {
+      const q = questions[qIndex];
+      const buttons = [...answers.querySelectorAll('.option')];
+      buttons.forEach(b => b.disabled = true);
+
+      const submitBtn = document.getElementById('submitMany');
+      if (submitBtn) {
+        submitBtn.classList.remove('show');
+        submitBtn.style.display = 'none';
+        submitBtn.disabled = true;
+      }
+
+      addBubble(selectedText, 'out');
+
+      if (isCorrect) {
+        score += 1;
+        addBubble('✅ Great — thanks for confirming.', 'in');
+      } else {
+        addBubble(`❌ Not sure about that — that doesn’t sound right. Correct answer is ${q.correctLabel}.`, 'in');
+      }
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'continue show';
+      nextBtn.textContent = qIndex < questions.length - 1 ? 'Next message →' : 'Finish';
+      nextBtn.addEventListener('click', nextQuestion);
+      answers.appendChild(nextBtn);
+    }
+
+    function selectSingle(selected) {
+      const q = questions[qIndex];
+      finishAnswer(selected === q.correct, q.options[selected]);
+    }
+
+    function toggleMulti(index, btn) {
+      const foundIndex = selectedMany.indexOf(index);
+      if (foundIndex >= 0) {
+        selectedMany.splice(foundIndex, 1);
+        btn.classList.remove('selected');
+      } else {
+        selectedMany.push(index);
+        btn.classList.add('selected');
+      }
+
+      const submitBtn = document.getElementById('submitMany');
+      if (submitBtn) {
+        submitBtn.classList.toggle('show', selectedMany.length > 0);
+      }
+    }
+
+    function submitMulti() {
+      const q = questions[qIndex];
+      const expected = [...q.correctMany].sort((a, b) => a - b);
+      const chosen = [...selectedMany].sort((a, b) => a - b);
+      const isCorrect = expected.length === chosen.length && expected.every((v, i) => v === chosen[i]);
+
+      const selectedText = selectedMany.length
+        ? selectedMany.map(i => q.options[i]).join('\n')
+        : 'No options selected.';
+
+      finishAnswer(isCorrect, selectedText);
+    }
+
+    function nextQuestion() {
+      qIndex += 1;
+      if (qIndex >= questions.length) {
+        answers.innerHTML = '';
+        addBubble(`🏁 End test complete. Score: ${score}/${questions.length}`, 'system');
+        addBubble(score >= 8
+          ? '✅ Pass (80%+). Great work Mike.'
+          : '⚠️ Below pass mark. Let’s review key points and retry.', 'system');
+
+        const doneBtn = document.createElement('button');
+        doneBtn.className = 'episode-complete show';
+        doneBtn.textContent = 'Episode complete';
+        doneBtn.addEventListener('click', () => {
+          window.location.href = '../../index.html';
+        });
+        answers.appendChild(doneBtn);
+        return;
+      }
+      showQuestion();
+    }
+
+    addBubble('Hey Mike 👋 I have a couple of questions about risk assessments, if you have time for a quick chat?', 'in');
+    addBubble('Yep, send it over.', 'out');
+    showQuestion();
+  </script>
+</body>
+</html>
