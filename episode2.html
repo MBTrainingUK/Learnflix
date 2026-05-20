@@ -140,6 +140,127 @@
       .speech.center { max-width: 90vw; }
       .speech.hse-lower { bottom: 22%; }
     }
+
+    /* ── QUIZ OVERLAY ─────────────────────────────────────────── */
+    .quiz-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(3px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .quiz-overlay.active { display: flex; }
+    .quiz-card {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 14px;
+      padding: 28px 30px;
+      width: min(560px, 96%);
+      box-shadow: 0 24px 60px rgba(0,0,0,.7);
+    }
+    .quiz-label {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ffd166;
+      margin-bottom: 10px;
+    }
+    .quiz-question {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 18px;
+    }
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+    }
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: .95rem;
+      transition: background .15s, border-color .15s;
+      text-align: left;
+      color: #fff;
+    }
+    .quiz-option:hover:not(:disabled) {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.3);
+    }
+    .quiz-option .opt-key {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      flex-shrink: 0;
+    }
+    .quiz-option.correct {
+      background: rgba(41,209,127,.18);
+      border-color: #29d17f;
+    }
+    .quiz-option.correct .opt-key {
+      background: #29d17f;
+      border-color: #29d17f;
+      color: #052313;
+    }
+    .quiz-option.wrong {
+      background: rgba(229,9,20,.15);
+      border-color: #e50914;
+    }
+    .quiz-option.wrong .opt-key {
+      background: #e50914;
+      border-color: #e50914;
+    }
+    .quiz-feedback {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: .92rem;
+      line-height: 1.45;
+      display: none;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.feedback-correct {
+      background: rgba(41,209,127,.15);
+      border: 1px solid #29d17f;
+      color: #a8ffd8;
+    }
+    .quiz-feedback.feedback-wrong {
+      background: rgba(229,9,20,.13);
+      border: 1px solid #e50914;
+      color: #ffb3b3;
+    }
+    .quiz-continue {
+      margin-top: 16px;
+      display: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 0;
+      background: #e50914;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .quiz-continue.show { display: block; }
+    .quiz-continue:hover { background: #f40612; }
   </style>
 </head>
 <body>
@@ -151,6 +272,30 @@
     <div id="speechBubble" class="speech left">
       <span class="speaker">Sarah:</span>
       <span class="line">That’s a massive fine.</span>
+    </div>
+
+    <!-- QUIZ OVERLAY -->
+    <div class="quiz-overlay" id="quizOverlay">
+      <div class="quiz-card">
+        <div class="quiz-label">📋 Knowledge Check</div>
+        <div class="quiz-question">Which of the following should be considered during a risk assessment?</div>
+        <div class="quiz-options" id="quizOptions">
+          <button class="quiz-option" data-key="A" onclick="checkAnswer(this, false)">
+            <span class="opt-key">A</span><span>Changes to work processes</span>
+          </button>
+          <button class="quiz-option" data-key="B" onclick="checkAnswer(this, false)">
+            <span class="opt-key">B</span><span>Contractors and visitors</span>
+          </button>
+          <button class="quiz-option" data-key="C" onclick="checkAnswer(this, false)">
+            <span class="opt-key">C</span><span>Employee training and experience</span>
+          </button>
+          <button class="quiz-option" data-key="D" onclick="checkAnswer(this, true)">
+            <span class="opt-key">D</span><span>All of the above</span>
+          </button>
+        </div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <button class="quiz-continue" id="quizContinue" onclick="closeQuiz()">Continue →</button>
+      </div>
     </div>
 
     <div class="hud">
@@ -244,8 +389,67 @@
       renderEntry(mikeThoughts[thoughtIdx], 'Thought', thoughtIdx + 1, mikeThoughts.length);
     }
 
+    const quizOverlay = document.getElementById('quizOverlay');
+    const quizFeedback = document.getElementById('quizFeedback');
+    const quizContinue = document.getElementById('quizContinue');
+    let quizAnswered = false;
+
+    function showQuiz() {
+      // Reset state
+      quizAnswered = false;
+      quizFeedback.className = 'quiz-feedback';
+      quizFeedback.textContent = '';
+      quizContinue.className = 'quiz-continue';
+      document.querySelectorAll('.quiz-option').forEach(btn => {
+        btn.className = 'quiz-option';
+        btn.disabled = false;
+      });
+      quizOverlay.classList.add('active');
+    }
+
+    function checkAnswer(btn, isCorrect) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      // Disable all options
+      document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        btn.classList.add('correct');
+        quizFeedback.className = 'quiz-feedback feedback-correct show';
+        quizFeedback.innerHTML = '✅ <strong>Correct!</strong> All of the above should be considered. Risk assessments must account for every factor that could affect health and safety.';
+      } else {
+        btn.classList.add('wrong');
+        // Highlight the correct answer
+        document.querySelectorAll('.quiz-option').forEach(b => {
+          if (b.dataset.key === 'D') b.classList.add('correct');
+        });
+        quizFeedback.className = 'quiz-feedback feedback-wrong show';
+        quizFeedback.innerHTML = '❌ <strong>Not quite.</strong> The correct answer is <strong>D – All of the above</strong>. Risk assessments must consider all relevant factors including work processes, contractors, visitors, and employee training.';
+      }
+
+      quizContinue.className = 'quiz-continue show';
+    }
+
+    function closeQuiz() {
+      quizOverlay.classList.remove('active');
+      // Skip the question slide and move straight to Emma's answer line (index 13)
+      hseIdx = 13;
+      renderHSELine();
+    }
+
     function renderHSELine() {
       const current = hseDialogue[hseIdx];
+
+      // Index 12 is the learner interaction prompt — show quiz instead
+      if (hseIdx === 12) {
+        bubble.style.display = 'none';
+        showQuiz();
+        counter.textContent = `HSE ${hseIdx + 1} / ${hseDialogue.length}`;
+        return;
+      }
+
+      bubble.style.display = '';
       if (current.speaker === 'Mike') {
         bubble.className = 'speech left hse-lower';
       } else if (current.speaker === 'Emma') {
@@ -274,6 +478,9 @@
     }
 
     function nextLine() {
+      // Don't advance if quiz is showing
+      if (quizOverlay.classList.contains('active')) return;
+
       if (scenePhase === 'dialogue') {
         if (idx < dialogue.length - 1) {
           idx += 1;
