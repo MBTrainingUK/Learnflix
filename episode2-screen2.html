@@ -330,15 +330,19 @@
 
     .next-btn {
       position: fixed;
-      right: 18px;
-      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 28px;
       z-index: 20;
       display: none;
       background: #29d17f;
       color: #052313;
       border: 0;
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 14px 28px;
+      min-width: 220px;
+      text-align: center;
+      font-size: 1.08rem;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 10px 25px rgba(0,0,0,.35);
@@ -428,7 +432,7 @@
     </aside>
   </div>
 
-  <button class="next-btn" id="nextBtn" aria-label="Go to end test">End Test →</button>
+  <button class="next-btn" id="nextBtn" aria-label="Go to end test">Next →</button>
 
   <div class="toast" id="toast"></div>
 
