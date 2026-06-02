@@ -799,6 +799,10 @@
   }
 
   function openModal(key) {
+    if (key === 'ep1') {
+      window.location.href = 'video-player.html?episode=1';
+      return;
+    }
     if (key === 'ep2') {
       window.location.href = 'episode2.html';
       return;
