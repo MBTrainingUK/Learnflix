@@ -111,7 +111,7 @@
     .btn svg { width: 22px; height: 22px; }
 
     /* ── CONTENT ROWS ──────────────────────────────────────────── */
-    .content-section { padding: 2rem 4%; }
+    .content-section { padding: 2rem 4%; overflow: visible; }
     .row-title {
       font-size: 1.2rem; font-weight: 700;
       margin-bottom: 1rem; color: var(--light);
@@ -126,9 +126,10 @@
     /* ── CARD SLIDER ───────────────────────────────────────────── */
     .card-row {
       display: flex; gap: 6px;
-      overflow-x: auto; scroll-snap-type: x mandatory;
+      overflow-x: auto; overflow-y: visible;
+      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: .5rem;
+      padding: .8rem 0;
     }
     .card-row::-webkit-scrollbar { height: 4px; }
     .card-row::-webkit-scrollbar-thumb { background: #555; }
@@ -141,6 +142,7 @@
       background: var(--card-bg);
       transition: transform .3s, z-index 0s .3s;
       cursor: pointer;
+      transform-origin: center center;
     }
     .card:hover {
       transform: scale(1.08);
@@ -148,6 +150,8 @@
       transition: transform .3s, z-index 0s 0s;
       box-shadow: 0 8px 30px rgba(0,0,0,.8);
     }
+    .card-row .card:first-child { transform-origin: left center; }
+    .card-row .card:last-child  { transform-origin: right center; }
     .card-thumb {
       width: 100%; aspect-ratio: 16/9; object-fit: cover;
       display: block;
@@ -694,14 +698,26 @@
     SCORM.init({ location: 'index.html', setIncomplete: true, passMark: 80 });
   }
 
-  /* ── Progress bars from localStorage ── */
+  /* ── Progress bars from SCORM suspend_data ── */
+  function getProgressData() {
+    var data = {};
+    try {
+      if (window.SCORM && SCORM.connected) {
+        var raw = SCORM.getValue('cmi.suspend_data');
+        if (raw) data = JSON.parse(raw);
+      }
+    } catch(e) {}
+    return data;
+  }
+
   function updateProgressBars() {
+    var data = getProgressData();
     var episodes = [
-      { key: 'ep1_progress', barId: 'ep1-bar', labelId: 'ep1-label' },
-      { key: 'ep2_progress', barId: 'ep2-bar', labelId: 'ep2-label' }
+      { key: 'ep1', barId: 'ep1-bar', labelId: 'ep1-label' },
+      { key: 'ep2', barId: 'ep2-bar', labelId: 'ep2-label' }
     ];
     episodes.forEach(function(ep) {
-      var pct = parseInt(localStorage.getItem(ep.key) || '0', 10);
+      var pct = parseInt(data[ep.key] || '0', 10);
       var bar = document.getElementById(ep.barId);
       var label = document.getElementById(ep.labelId);
       if (bar) bar.style.width = pct + '%';
