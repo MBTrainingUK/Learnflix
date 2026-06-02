@@ -21,10 +21,10 @@
       border: 0;
       z-index: 1;
     }
-    .close-btn {
+    .back-btn {
       position: fixed;
       top: 16px;
-      right: 16px;
+      left: 16px;
       z-index: 200;
       padding: 8px 14px;
       border: none;
@@ -35,7 +35,7 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .close-btn:hover { background: rgba(80,80,80,.95); }
+    .back-btn:hover { background: rgba(80,80,80,.95); }
   </style>
 </head>
 <body>
@@ -47,7 +47,7 @@
   title="episode 1">
 </iframe>
 
-<button class="close-btn" onclick="window.close();">✕ Close</button>
+<button class="back-btn" onclick="window.location.href='index.html';">← Back to LearnFlix</button>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
 <script>
