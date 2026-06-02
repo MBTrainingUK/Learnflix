@@ -50,6 +50,18 @@
 <button class="close-btn" onclick="window.close();">✕ Close</button>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
+<script>
+  var player = new Vimeo.Player(document.getElementById('vimeoPlayer'));
+
+  player.on('timeupdate', function(data) {
+    var pct = Math.round(data.percent * 100);
+    localStorage.setItem('ep1_progress', pct);
+  });
+
+  player.on('ended', function() {
+    localStorage.setItem('ep1_progress', 100);
+  });
+</script>
 
 </body>
 </html>

@@ -304,7 +304,12 @@
     </div>
   </div>
 
+  <script src="scorm/scorm.js"></script>
   <script>
+    if (window.SCORM) {
+      SCORM.init({ location: 'episode2.html', setIncomplete: true, passMark: 80 });
+    }
+
     const dialogue = [
       { speaker: 'Sarah', side: 'left', text: 'That’s a massive fine.' },
       { speaker: 'Mike', side: 'right', text: 'It is. And as a CEO, stories like this always catch my attention.' },
@@ -366,6 +371,13 @@
       { speaker: 'Mike', side: 'right', text: 'Let’s schedule a full review with department managers this week and make sure everything is current.' },
       { speaker: 'Emma', side: 'left', text: 'I’ll arrange it.' }
     ];
+
+    const TOTAL_STEPS = dialogue.length + mikeThoughts.length + hseDialogue.length;
+
+    function saveEp2Progress(currentStep) {
+      var pct = Math.min(100, Math.round((currentStep / TOTAL_STEPS) * 100));
+      localStorage.setItem('ep2_progress', pct);
+    }
 
     let idx = 0;
     let thoughtIdx = -1;
@@ -477,6 +489,12 @@
       renderHSELine();
     }
 
+    function currentStep() {
+      if (scenePhase === 'dialogue') return idx;
+      if (scenePhase === 'thoughts') return dialogue.length + thoughtIdx;
+      return dialogue.length + mikeThoughts.length + hseIdx;
+    }
+
     function nextLine() {
       // Don't advance if quiz is showing
       if (quizOverlay.classList.contains('active')) return;
@@ -488,6 +506,7 @@
         } else {
           startThoughtScene();
         }
+        saveEp2Progress(currentStep());
         return;
       }
 
@@ -498,6 +517,7 @@
         } else {
           startHSEScene();
         }
+        saveEp2Progress(currentStep());
         return;
       }
 
@@ -505,7 +525,9 @@
         if (hseIdx < hseDialogue.length - 1) {
           hseIdx += 1;
           renderHSELine();
+          saveEp2Progress(currentStep());
         } else {
+          localStorage.setItem('ep2_progress', 100);
           window.location.href = 'episode2-screen2.html';
         }
       }

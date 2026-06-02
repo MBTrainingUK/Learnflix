@@ -396,9 +396,10 @@
         src="Episode 1/images/Ep1%20Workplace%20nightmare.png"
         alt="Episode 1 – Workplace Nightmare" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
       <div class="card-thumb-placeholder" style="display:none">🚗</div>
-      <div class="card-progress"><div class="card-progress-fill" style="width:45%"></div></div>
+      <div class="card-progress"><div class="card-progress-fill" id="ep1-bar" style="width:0%"></div></div>
       <div class="card-overlay">
         <div class="card-title">Ep 1 – Workplace Nightmare</div>
+        <div class="card-ep" id="ep1-label"></div>
         <div class="card-actions">
           <button class="card-btn card-btn-play">▶</button>
           <button class="card-btn card-btn-add">+</button>
@@ -412,10 +413,10 @@
         src="Episode 1/images/Episode%202%20Who%20is%20responsible.png"
         alt="Episode 2 – Evaluating Risk" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
       <div class="card-thumb-placeholder" style="display:none">🔒</div>
-      <div class="card-progress"><div class="card-progress-fill" style="width:10%"></div></div>
+      <div class="card-progress"><div class="card-progress-fill" id="ep2-bar" style="width:0%"></div></div>
       <div class="card-overlay">
         <div class="card-title">Ep 2 – Evaluating Risk</div>
-        <div class="card-ep">10% complete</div>
+        <div class="card-ep" id="ep2-label">Not started</div>
         <div class="card-actions">
           <button class="card-btn card-btn-play">▶</button>
           <button class="card-btn card-btn-add">+</button>
@@ -687,7 +688,32 @@
 </div>
 
 <!-- ══ JAVASCRIPT ══════════════════════════════════════════════════ -->
+<script src="scorm/scorm.js"></script>
 <script>
+  if (window.SCORM) {
+    SCORM.init({ location: 'index.html', setIncomplete: true, passMark: 80 });
+  }
+
+  /* ── Progress bars from localStorage ── */
+  function updateProgressBars() {
+    var episodes = [
+      { key: 'ep1_progress', barId: 'ep1-bar', labelId: 'ep1-label' },
+      { key: 'ep2_progress', barId: 'ep2-bar', labelId: 'ep2-label' }
+    ];
+    episodes.forEach(function(ep) {
+      var pct = parseInt(localStorage.getItem(ep.key) || '0', 10);
+      var bar = document.getElementById(ep.barId);
+      var label = document.getElementById(ep.labelId);
+      if (bar) bar.style.width = pct + '%';
+      if (label) {
+        if (pct >= 100) label.textContent = '✓ Completed';
+        else if (pct > 0) label.textContent = pct + '% complete';
+        else label.textContent = 'Not started';
+      }
+    });
+  }
+  updateProgressBars();
+
   /* ── Navbar scroll effect ── */
   window.addEventListener('scroll', () => {
     document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
